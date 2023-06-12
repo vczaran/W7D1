@@ -5,22 +5,26 @@ class SessionsController < ApplicationController
     end
 
     def create
-        user = User.find_by_credentials(session_params)
-        session[:session_token] = user.reset_session_token!
-        redirect_to cats_url
+        @user = User.find_by_credentials(session_params)
+
+        if @user
+            login(user)
+            redirect_to cats_url
+        else
+            render :new
+        end
+
     end
 
     def destroy
-        if logged_in?
-            @current_user.reset_session_token!
-            session[:session_token] = nil
-        end
+        logout!
 
         redirect_to new_session_url
+       
     end
 
     private
     def session_params
-        params.require(:session).permit(:username, :password)
+        params.require(:user).permit(:username, :password)
     end
 end
