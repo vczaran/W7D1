@@ -1,14 +1,17 @@
 class SessionsController < ApplicationController
+    before_action :require_logged_out, only: [:new, :create]
 
     def new
         render :new
     end
 
     def create
-        @user = User.find_by_credentials(session_params)
+        username = params[:user][:username]
+        password = params[:user][:password]
+        @user = User.find_by_credentials(username, password)
 
         if @user
-            login(user)
+            login(@user)
             redirect_to cats_url
         else
             render :new
