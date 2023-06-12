@@ -16,8 +16,25 @@ class User < ApplicationRecord
         pass.is_password?(password)
     end
 
-    def self.find_by_credentials(username, password)
-        
+    def generate_session_token
+        SecureRandom::urlsafe_base64
     end
 
+    def reset_session_token!
+        self.session_token = generate_session_token
+    end
+
+    def self.find_by_credentials(username, password)
+        user = User.find_by(username)
+        if user && user.is_password?(password)
+            user
+        else
+            nil
+        end
+    end
+
+    private
+    def ensure_session_token
+        self.session_token ||= generate_session_token
+    end
 end
